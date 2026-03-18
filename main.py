@@ -1,14 +1,18 @@
 import flet as ft
 import pg8000
 from datetime import date
+
+
 def get_connection():
     return pg8000.connect(
         database="system_factory",
         user="postgres",
-        password="your password",
+        password="hunter1717",
         host="localhost",
         port=5432
     )
+
+
 def main(page: ft.Page):
     page.title = "Система заказов машиностроительного завода"
     page.bgcolor = "#180C3B"
@@ -16,12 +20,14 @@ def main(page: ft.Page):
     page.window_width = 800
     page.window_height = 650
     page.window_resizable = False
+
     page.add(
         ft.Row([
             ft.Text("Управление заказами", size=28, weight=ft.FontWeight.BOLD, color="white"),
         ]),
         ft.Divider(height=20, color="white24")
     )
+
     orders_table = ft.DataTable(
         columns=[
             ft.DataColumn(ft.Text("ID", color="white")),
@@ -36,6 +42,7 @@ def main(page: ft.Page):
         bgcolor="#2A2A2A",
         heading_row_color="#5736EB",
     )
+
     def load_orders(e=None):
         try:
             conn = get_connection()
@@ -58,6 +65,7 @@ def main(page: ft.Page):
                     color = "orange400"
                 else:
                     color = "blue400"
+
                 closing = row[5] if row[5] else ""
 
                 orders_table.rows.append(
@@ -97,11 +105,13 @@ def main(page: ft.Page):
                     SET status = %s, date_of_closing = NULL 
                     WHERE id = %s
                 """, (new_status, order_id))
+
             conn.commit()
             conn.close()
             load_orders()
         except Exception:
             pass
+
     def delete_order(order_id):
         try:
             conn = get_connection()
@@ -112,6 +122,7 @@ def main(page: ft.Page):
             load_orders()
         except Exception:
             pass
+
     def show_change_status_dialog(e):
         order_id_field = ft.TextField(
             label="ID заказа",
@@ -147,6 +158,7 @@ def main(page: ft.Page):
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
+
         def save_status(dlg):
             try:
                 order_id = int(order_id_field.value)
@@ -156,12 +168,14 @@ def main(page: ft.Page):
                 page.update()
             except ValueError:
                 pass
+
         def close_dialog(dlg):
             dlg.open = False
             page.update()
 
         page.show_dialog(dialog)
         page.update()
+
     def show_delete_order_dialog(e):
         order_id_field = ft.TextField(
             label="ID заказа для удаления",
@@ -170,6 +184,7 @@ def main(page: ft.Page):
             color="white",
             label_style=ft.TextStyle(color="white")
         )
+
         dialog = ft.AlertDialog(
             title=ft.Text("Удаление заказа", size=18, weight=ft.FontWeight.BOLD, color="white"),
             bgcolor="#2A2A2A",
@@ -184,6 +199,7 @@ def main(page: ft.Page):
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
+
         def delete_with_confirm(dlg):
             try:
                 order_id = int(order_id_field.value)
@@ -192,9 +208,11 @@ def main(page: ft.Page):
                 page.update()
             except ValueError:
                 pass
+
         def close_dialog(dlg):
             dlg.open = False
             page.update()
+
         page.show_dialog(dialog)
         page.update()
 
@@ -216,6 +234,7 @@ def main(page: ft.Page):
             color="white",
             label_style=ft.TextStyle(color="white")
         )
+
         quantity_field = ft.TextField(
             label="Количество",
             value="1",
@@ -224,6 +243,7 @@ def main(page: ft.Page):
             color="white",
             label_style=ft.TextStyle(color="white")
         )
+
         dialog = ft.AlertDialog(
             title=ft.Text("Заказ продукта", size=20, weight=ft.FontWeight.BOLD, color="white"),
             bgcolor="#2A2A2A",
@@ -238,6 +258,7 @@ def main(page: ft.Page):
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
+
         def save_order(dlg):
             try:
                 product_id = int(product_dropdown.value)
@@ -257,11 +278,14 @@ def main(page: ft.Page):
                 load_orders()
             except Exception:
                 pass
+
         def close_dialog(dlg):
             dlg.open = False
             page.update()
+
         page.show_dialog(dialog)
         page.update()
+
     def show_materials_dialog(e):
         try:
             conn = get_connection()
@@ -277,8 +301,10 @@ def main(page: ft.Page):
             conn.close()
         except Exception:
             materials = []
+
         if not materials:
             return
+
         materials_table = ft.DataTable(
             columns=[
                 ft.DataColumn(ft.Text("Продукт", color="white")),
@@ -290,6 +316,7 @@ def main(page: ft.Page):
             bgcolor="#2A2A2A",
             heading_row_color="#5736EB",
         )
+
         for m in materials:
             materials_table.rows.append(
                 ft.DataRow(cells=[
@@ -313,6 +340,7 @@ def main(page: ft.Page):
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
+
         def close_dialog(dlg):
             dlg.open = False
             page.update()
@@ -324,6 +352,7 @@ def main(page: ft.Page):
         bgcolor="#5736EB",
         color="white",
     )
+
     page.add(
         ft.Row([
             ft.FilledButton("Создать заказ", on_click=show_create_order_dialog, style=button_style),
@@ -346,7 +375,9 @@ def main(page: ft.Page):
             bgcolor="#2A2A2A",
         )
     )
+
     load_orders()
+
 
 if __name__ == "__main__":
     ft.app(target=main)
