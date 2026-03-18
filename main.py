@@ -7,7 +7,7 @@ def get_connection():
     return pg8000.connect(
         database="system_factory",
         user="postgres",
-        password="hunter1717",
+        password="your db password",
         host="localhost",
         port=5432
     )
